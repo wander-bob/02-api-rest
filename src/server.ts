@@ -5,9 +5,8 @@ import { randomUUID } from 'node:crypto';
 const app = fastify();
 
 app.get('/hello', async () => {
-  const transactions = await knex('transactions').where('amount', 7.5).select('*');
-
-  return transactions
+  const transactinos = await knex('transactions').select('*')
+  return 'Hello World'
 });
 
 app
