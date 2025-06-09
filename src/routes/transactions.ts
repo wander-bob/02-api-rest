@@ -29,7 +29,7 @@ export async function transactionsRoutes(app: FastifyInstance) {
     return { summary }
   })
 
-  app.post('/', async (request, repy) => {
+  app.post('/', async (request, reply) => {
     const createTransactionBodySchema = z.object({
       title: z.string().min(3),
       amount: z.coerce.number().min(1),
@@ -38,13 +38,25 @@ export async function transactionsRoutes(app: FastifyInstance) {
 
     const { title, amount, type } = createTransactionBodySchema.parse(request.body);
 
+    let sessionId = request.cookies.sessionId;
+    if (!sessionId) {
+      sessionId = randomUUID();
+
+      const sevenDaysCookieMaxAge = 60 * 60 * 24 * 7;
+      reply.setCookie('sessionId', sessionId, {
+        path: '/',
+        maxAge: sevenDaysCookieMaxAge,
+      })
+    }
+
+
     await knex('transactions').insert({
       id: randomUUID(),
       title,
       amount: type === 'credit' ? amount : amount * -1,
     })
 
-    return repy.status(201).send();
+    return reply.status(201).send();
   })
 
 }
