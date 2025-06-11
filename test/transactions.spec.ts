@@ -1,5 +1,6 @@
-import { describe, it, beforeAll, afterAll, expect } from 'vitest';
+import { describe, it, beforeAll, afterAll, expect, beforeEach } from 'vitest';
 import supertest from 'supertest';
+import { execSync } from 'node:child_process';
 
 import { app } from '../src/app';
 
@@ -11,6 +12,11 @@ describe('Transactions routes', () => {
 	afterAll(async () => {
 		await app.close();
 	});
+
+	beforeEach(() => {
+		execSync('npm run knex migrate:rollback --all');
+		execSync('npm run knex migrate:latest');
+	})
 
 	it('should be able to register a transaction', async () => {
 		await supertest(app.server).post('/transactions')
