@@ -48,5 +48,67 @@ describe('Transactions routes', () => {
 				amount: 1000,
 			})
 		])
-	})
+	});
+
+	it('should be able to list a specific transaction', async () => {
+		const createdTransactions = await supertest(app.server).post('/transactions')
+			.send({
+				title: 'New test transactions',
+				amount: 1000,
+				type: 'credit'
+			});
+
+		const cookies = createdTransactions.get('Set-Cookie');
+
+		const listOfTransactions = await supertest(app.server)
+			.get('/transactions')
+			.set('Cookie', cookies!)
+			.expect(200);
+
+		const transactionId = listOfTransactions.body.transactions[0].id;
+		const transaction = await supertest(app.server)
+			.get(`/transactions/${transactionId}`)
+			.set('Cookie', cookies!)
+			.expect(200);
+
+		expect(transaction.body.transaction).toEqual(
+			expect.objectContaining(
+				{
+					title: 'New test transactions',
+					amount: 1000,
+				})
+		)
+	});
+
+	it.only('should be able to get transactions summary', async () => {
+		const createdTransactions = await supertest(app.server).post('/transactions')
+			.send({
+				title: 'New test transactions',
+				amount: 2000,
+				type: 'credit'
+			});
+
+		const cookies = createdTransactions.get('Set-Cookie');
+
+		await supertest(app.server)
+			.post('/transactions')
+			.set('Cookie', cookies!)
+			.send({
+				title: 'New test transactions',
+				amount: 500,
+				type: 'debit'
+			}).expect(201);
+
+		const transactionsSummary = await supertest(app.server)
+			.get('/transactions/summary')
+			.set('Cookie', cookies!)
+			.expect(200);
+
+		expect(transactionsSummary.body.summary).toEqual(
+			expect.objectContaining(
+				{
+					amount: 1500,
+				})
+		)
+	});
 })
