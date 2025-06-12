@@ -17,7 +17,7 @@ export async function transactionsRoutes(app: FastifyInstance) {
     return { transactions }
   })
 
-  app.get('/:id', { preHandler: [checkSessionId] }, async (request) => {
+  app.get('/:id', { preHandler: [checkSessionId] }, async (request, reply) => {
     const getTransactionParamsSchema = z.object({
       id: z.string().uuid(),
     });
@@ -29,6 +29,12 @@ export async function transactionsRoutes(app: FastifyInstance) {
       id,
       session_id: sessionId,
     }).first();
+
+    if (!transaction) {
+      return reply.status(404).send({
+        message: 'Transaction not found'
+      })
+    }
 
     return {
       transaction
