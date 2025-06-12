@@ -2,7 +2,7 @@
   "name": "02-api-rest",
   "version": "1.0.0",
   "description": "",
-  "main": "./build/src/server.js",
+  "main": "./build/src/server.cjs",
   "engines": {
     "node": ">=22.14"
   },
@@ -10,7 +10,7 @@
     "dev": "tsx watch ./src/server.js",
     "knex": "node --no-warnings --import tsx ./node_modules/knex/bin/cli.js",
     "test": "vitest",
-    "build": "tsup ./src/ --out-dir ./build",
+    "build": "tsup ./src/ --out-dir ./build/src/",
     "lint": "eslint ./src/ --ext .ts --fix"
   },
   "keywords": [],
